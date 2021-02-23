@@ -17,7 +17,7 @@ class Observer:
     def __init__(self):
         pass
 
-    def update(self, event, *argv):
+    def update(self, obj, event, *argv):
         pass
 
 
@@ -28,7 +28,7 @@ class Observable:
 
     def notify(self, event, *argv):
         for obs in self._observers:
-            obs.update(event, *argv)
+            obs.update(self, event, *argv)
 
     def add_observer(self, obs):
         self._observers.append(obs)
@@ -43,6 +43,7 @@ class Observable:
 class GameObject(Observable):
 
     def __init__(self):
+        super(GameObject, self).__init__()
         self._position = None
         self._team = None
 
@@ -65,11 +66,13 @@ class GameObject(Observable):
 class Monkey(GameObject):
 
     def __init__(self, position, team):
+        super(Monkey, self).__init__()
         self.set_team(team)
         self.set_position(position)
 
     def move(self, board, new_position):
         # TODO: Check and act
+        self.set_position(new_position)
         self.notify(Event.MOVED_TO, new_position)
 
     def __str__(self):
@@ -80,12 +83,14 @@ class Monkey(GameObject):
 class Queen(GameObject):
 
     def __init__(self, position, team, monkey_stack = 20):
+        super(Queen, self).__init__()
         self.set_team(team)
         self.set_position(position)
         self._monkey_stack = monkey_stack
 
     def move(self, board, new_position):
         # TODO: Checkand act
+        self.set_position(new_position)
         self.notify(Event.MOVED_TO, new_position)
 
     def __str__(self):
