@@ -1,4 +1,5 @@
 from enum import Enum
+from src.game.game_exception import GameException
 from src.game.geo import check_collision
 
 class Team(Enum):
@@ -37,7 +38,7 @@ class Observable:
         if obs in self._observers:
             self._observers.remove(obs)
         else:
-            raise Exception('Given observer {} doesn\'t exists in observer list'.format(obs))
+            raise GameException('Given observer {} doesn\'t exists in observer list'.format(obs))
 
 
 class GameObject(Observable):
@@ -132,7 +133,7 @@ class Queen(GameObject):
 
         # Move in the same position => Illegal
         if delta_pos.x == 0 and delta_pos.y == 0:
-            return False
+            return False, None
 
         # Move horizontally or vertically
         if delta_pos.x == 0 or delta_pos.y == 0:
@@ -143,7 +144,7 @@ class Queen(GameObject):
             good_direction = True
 
         if not good_direction:
-            return False
+            return False, None
 
         # Checks collision with other units
         return check_collision(board, self.get_position(), new_position)

@@ -1,5 +1,6 @@
 from src.game.board import Board
 from src.game.entities import Monkey, Queen, Team
+from src.game.game_exception import *
 from src.game.command import Command
 from src.game.geo import Vec2I
 
@@ -28,5 +29,5 @@ while True:
 
     try:
         board.play_command(command)
-    except Exception as exc:
+    except GameException as exc:
         print(exc)

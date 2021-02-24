@@ -34,11 +34,16 @@ def check_collision(board, old_pos, new_pos):
     # Create an array of the cells between the destination position and the old position
     position = None
     if delta_pos.y == 0:  # Horizontal
-        position = [Vec2I(old_pos.x + dx, old_pos.y) for dx in range(1, delta_pos.x - 1)]
+        sign = -1 if delta_pos.x < 0 else 1
+        position = [Vec2I(old_pos.x + (dx * sign), old_pos.y) for dx in range(1, abs(delta_pos.x) - 1)]
     elif delta_pos.x == 0:  # Vertical
-        position = [Vec2I(old_pos.x, old_pos.y + dy) for dy in range(1, delta_pos.y - 1)]
+        sign = -1 if delta_pos.y < 0 else 1
+        position = [Vec2I(old_pos.x, old_pos.y + (sign * dy)) for dy in range(1, abs(delta_pos.y) - 1)]
     elif abs(delta_pos.y == delta_pos.x):  # Oblique
-        position = [Vec2I(old_pos.x + dx, old_pos + dy) for dx, dy in zip(range(1, delta_pos.x - 1), range(1, delta_pos.y - 1))]
+        sign_x = -1 if delta_pos.x < 0 else 1
+        sign_y = -1 if delta_pos.y < 0 else 1
+        position = [Vec2I(old_pos.x + (dx * sign_x), old_pos + (dy * sign_y)) for dx, dy in
+                    zip(range(1, abs(delta_pos.x) - 1), range(1, abs(delta_pos.y) - 1))]
 
     is_obstacle = False
     where_obstacle = None
