@@ -9,3 +9,6 @@ class Command:
 
     def get_to(self):
         return self._pos_to
+
+    def __str__(self):
+        return '{}, {} -> {}, {}'.format(self._pos_from.x, self._pos_from.y, self._pos_to.x, self._pos_to.y)

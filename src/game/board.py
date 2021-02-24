@@ -1,4 +1,4 @@
-from src.game.entities import GameObject, Team, Event
+from src.game.entities import GameObject, Team, Event, Queen
 from src.game.geo import Vec2I
 
 
@@ -49,6 +49,12 @@ class Board:
             out_str += '\nWhite to play.\n'
         print(out_str)
 
+    def get_entity_map(self):
+        map = {}
+        for obj in self._entities:
+            map[obj.get_position()] = obj
+        return map
+
     def _get_gameobject_from_pos(self, pos):
         for obj in self._entities:
             obj_pos = obj.get_position()
@@ -62,6 +68,13 @@ class Board:
         if pos.x >= self._cols or pos.y >= self._rows:
             return False
         return True
+
+    def search_queen(self, team):
+        for obj in self._entities:
+            if isinstance(obj, Queen):
+                if obj.get_team() == team:
+                    return obj
+        return None
 
     def play_command(self, command):
         pos_from = command.get_from()
@@ -79,18 +92,29 @@ class Board:
         if piece_from is None:
             raise Exception('No piece was found in this position.')
 
+        is_legal, capture = piece_from.is_legal(self, pos_to)
+
+        if not is_legal:
+            raise Exception('Illegal move')
+
         if self._team_turn == Team.WHITE:
             self._team_turn = Team.BLACK
         else:
             self._team_turn = Team.WHITE
             self._turn_count += 1
 
-        piece_from.move(self, pos_to)
+        piece_from.move(self, pos_to, capture=capture)
 
     def update(self, obj, event, *argv):
         if event == Event.MOVED_TO:
             self.draw()
         elif event == Event.MOVED_TO_CAPTURE:
+            captured_piece = argv[1]
+            self._entities.remove(captured_piece)
+            if isinstance(captured_piece, Queen):
+                print('Team {} wins'.format('black' if captured_piece.get_team() == Team.WHITE else 'white'))
             self.draw()
         elif event == Event.MOVED_TO_CREATE:
+            old_position = argv[1]
+            obj.breed(self, old_position)
             self.draw()
