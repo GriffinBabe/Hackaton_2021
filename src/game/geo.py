@@ -35,15 +35,15 @@ def check_collision(board, old_pos, new_pos):
     position = None
     if delta_pos.y == 0:  # Horizontal
         sign = -1 if delta_pos.x < 0 else 1
-        position = [Vec2I(old_pos.x + (dx * sign), old_pos.y) for dx in range(1, abs(delta_pos.x) - 1)]
+        position = [Vec2I(old_pos.x + (dx * sign), old_pos.y) for dx in range(1, abs(delta_pos.x))]
     elif delta_pos.x == 0:  # Vertical
         sign = -1 if delta_pos.y < 0 else 1
-        position = [Vec2I(old_pos.x, old_pos.y + (sign * dy)) for dy in range(1, abs(delta_pos.y) - 1)]
+        position = [Vec2I(old_pos.x, old_pos.y + (sign * dy)) for dy in range(1, abs(delta_pos.y))]
     elif abs(delta_pos.y == delta_pos.x):  # Oblique
         sign_x = -1 if delta_pos.x < 0 else 1
         sign_y = -1 if delta_pos.y < 0 else 1
-        position = [Vec2I(old_pos.x + (dx * sign_x), old_pos + (dy * sign_y)) for dx, dy in
-                    zip(range(1, abs(delta_pos.x) - 1), range(1, abs(delta_pos.y) - 1))]
+        position = [Vec2I(old_pos.x + (dx * sign_x), old_pos.y + (dy * sign_y)) for dx, dy in
+                    zip(range(1, abs(delta_pos.x)), range(1, abs(delta_pos.y)))]
 
     is_obstacle = False
     where_obstacle = None

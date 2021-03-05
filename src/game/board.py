@@ -82,21 +82,21 @@ class Board:
         pos_to = command.get_to()
 
         if not self._check_boundaries(pos_from) or not self._check_boundaries(pos_to):
-            raise OutOfBounds('Out of bounds position was given.')
+            raise OutOfBoundsException('Out of bounds position was given.')
 
         piece_from = self._get_gameobject_from_pos(pos_from)
+
+        if piece_from is None:
+            raise NoPieceFoundException('No piece was found in this position.')
 
         # Cannot move opponent's pieces
         if piece_from.get_team() != self._team_turn:
             raise MoveOpponentPieceException('Cannot move opponent\'s pieces.')
 
-        if piece_from is None:
-            raise NoPieceFound('No piece was found in this position.')
-
         is_legal, capture = piece_from.is_legal(self, pos_to)
 
         if not is_legal:
-            raise IllegalMove('Illegal move')
+            raise IllegalMoveException('Illegal move')
 
         if self._team_turn == Team.WHITE:
             self._team_turn = Team.BLACK

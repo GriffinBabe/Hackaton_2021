@@ -6,13 +6,13 @@ class MoveOpponentPieceException(GameException):
     pass
 
 
-class NoPieceFound(GameException):
+class NoPieceFoundException(GameException):
     pass
 
 
-class IllegalMove(GameException):
+class IllegalMoveException(GameException):
     pass
 
 
-class OutOfBounds(GameException):
+class OutOfBoundsException(GameException):
     pass

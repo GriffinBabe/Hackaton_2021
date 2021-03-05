@@ -78,7 +78,7 @@ class Monkey(GameObject):
 
         # Move in the same position => Illegal
         if delta_pos.x == 0 and delta_pos.y == 0:
-            return False
+            return False, None
 
         # Move horizontally or vertically
         if delta_pos.x == 0 or delta_pos.y == 0:
@@ -89,18 +89,18 @@ class Monkey(GameObject):
             good_direction = True
 
         if not good_direction:
-            return False
+            return False, None
 
         # Enemy queen reference
         team_color = self.get_team()
         enemy_queen = board.search_queen(Team.BLACK if team_color == Team.WHITE else Team.WHITE)
 
         # Checks if the new position makes the monkey closer to the enemy queen
-        old_distance = (enemy_queen - self.get_position()).norm()
-        new_distance = (enemy_queen - new_position).norm()
+        old_distance = (enemy_queen.get_position() - self.get_position()).norm()
+        new_distance = (enemy_queen.get_position() - new_position).norm()
 
         if old_distance < new_distance:
-            return False
+            return False, None
 
         # Checks collision with other units
         return check_collision(board, self.get_position(), new_position)
@@ -115,7 +115,7 @@ class Monkey(GameObject):
 
     def __str__(self):
         team = 'b' if self._team == Team.BLACK else 'w'
-        return team + 'M'
+        return team + 'M '
 
 
 class Queen(GameObject):
