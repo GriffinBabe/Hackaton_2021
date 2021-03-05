@@ -1,5 +1,6 @@
 from src.test.interpret import interpret_game
 from src.game.game_exception import *
+from src.game.geo import Vec2I
 import unittest
 
 
@@ -30,6 +31,20 @@ class TestMovements(unittest.TestCase):
 
     def test_move_further_from_queen(self):
         self.assertRaises(IllegalMoveException, interpret_game, '../../resources/game_move_further_from_queen.json')
+
+
+class TestLegalMoves(unittest.TestCase):
+
+    def test_get_legal_moves_queen_2x2(self):
+        board = interpret_game('../../resources/game_get_legal_moves_queen.json')
+        entities = board.get_entity_map()
+        pos = Vec2I(0, 0)
+        queen = entities.get(pos)
+        legal_moves = queen.get_legal_moves(board)
+        legal_moves_expected = [Vec2I(1, 0), Vec2I(0, 1), Vec2I(1, 1)]
+        print(legal_moves)
+        for move in legal_moves:
+            self.assertTrue(move in legal_moves_expected)
 
 
 if __name__ == '__main__':

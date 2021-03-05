@@ -1,6 +1,6 @@
 from enum import Enum
 from src.game.game_exception import GameException
-from src.game.geo import check_collision
+from src.game.geo import Vec2I, get_legal_positions
 
 class Team(Enum):
     WHITE = 1
@@ -71,42 +71,19 @@ class Monkey(GameObject):
         self.set_team(team)
         self.set_position(position)
 
-    def is_legal(self, board, new_position):
-        # Checks if a move is legal (if the direction is horizontal, vertical or oblique)
-        delta_pos = self.get_position() - new_position
-        good_direction = False
-
-        # Move in the same position => Illegal
-        if delta_pos.x == 0 and delta_pos.y == 0:
-            return False, None
-
-        # Move horizontally or vertically
-        if delta_pos.x == 0 or delta_pos.y == 0:
-            good_direction = True
-
-        # Move in oblique
-        if abs(delta_pos.x) == abs(delta_pos.y):
-            good_direction = True
-
-        if not good_direction:
-            return False, None
-
-        # Enemy queen reference
-        team_color = self.get_team()
-        enemy_queen = board.search_queen(Team.BLACK if team_color == Team.WHITE else Team.WHITE)
-
-        # Checks if the new position makes the monkey closer to the enemy queen
-        old_distance = (enemy_queen.get_position() - self.get_position()).norm()
-        new_distance = (enemy_queen.get_position() - new_position).norm()
-
-        if old_distance < new_distance:
-            return False, None
-
-        # Checks collision with other units
-        return check_collision(board, self.get_position(), new_position)
+    def get_legal_moves(self, board):
+        enemy_queen = board.search_queen(Team.WHITE if self._team == Team.BLACK else Team.BLACK)
+        legal_positions = get_legal_positions(board, self._position)
+        # Check if the new moves makes us closed from the queen
+        pos_queen_distance = (enemy_queen.get_position() - self.get_position()).norm()
+        final_legal_positions = []
+        for new_pos in legal_positions:
+            new_distance = (enemy_queen.get_position() - new_pos).norm()
+            if new_distance < pos_queen_distance:
+                final_legal_positions.append(new_pos)
+        return final_legal_positions
 
     def move(self, board, new_position, capture=None):
-        # TODO: Check and act
         self.set_position(new_position)
         if capture is not None:
             self.notify(Event.MOVED_TO_CAPTURE, new_position, capture)
@@ -126,28 +103,8 @@ class Queen(GameObject):
         self.set_position(position)
         self._monkey_stack = monkey_stack
 
-    def is_legal(self, board, new_position):
-        # Checks if a move is legal (if the direction is horizontal, vertical or oblique)
-        delta_pos = self.get_position() - new_position
-        good_direction = False
-
-        # Move in the same position => Illegal
-        if delta_pos.x == 0 and delta_pos.y == 0:
-            return False, None
-
-        # Move horizontally or vertically
-        if delta_pos.x == 0 or delta_pos.y == 0:
-            good_direction = True
-
-        # Move in oblique
-        if abs(delta_pos.x) == abs(delta_pos.y):
-            good_direction = True
-
-        if not good_direction:
-            return False, None
-
-        # Checks collision with other units
-        return check_collision(board, self.get_position(), new_position)
+    def get_legal_moves(self, board):
+        return get_legal_positions(board, self._position)
 
     def breed(self, board, old_position):
         if self._monkey_stack > 0:

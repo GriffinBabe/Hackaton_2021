@@ -20,3 +20,5 @@ def interpret_game(path):
 
     for command in game_data['moves']:
         board.play_command(command)
+
+    return board

@@ -63,7 +63,7 @@ class Board:
                 return obj
         return None
 
-    def _check_boundaries(self, pos):
+    def check_boundaries(self, pos):
         if pos.x < 0 or pos.y < 0:
             return False
         if pos.x >= self._cols or pos.y >= self._rows:
@@ -81,7 +81,7 @@ class Board:
         pos_from = command.get_from()
         pos_to = command.get_to()
 
-        if not self._check_boundaries(pos_from) or not self._check_boundaries(pos_to):
+        if not self.check_boundaries(pos_from) or not self.check_boundaries(pos_to):
             raise OutOfBoundsException('Out of bounds position was given.')
 
         piece_from = self._get_gameobject_from_pos(pos_from)
@@ -93,9 +93,10 @@ class Board:
         if piece_from.get_team() != self._team_turn:
             raise MoveOpponentPieceException('Cannot move opponent\'s pieces.')
 
-        is_legal, capture = piece_from.is_legal(self, pos_to)
+        legal_moves = piece_from.get_legal_moves(self)
+        capture = self._get_gameobject_from_pos(pos_to)
 
-        if not is_legal:
+        if pos_to not in legal_moves:
             raise IllegalMoveException('Illegal move')
 
         if self._team_turn == Team.WHITE:

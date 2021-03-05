@@ -10,11 +10,20 @@ class Vec2I:
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
+    def __add__(self, other):
+        return Vec2I(self.x + other.x, self.y + other.y)
+
     def __sub__(self, other):
         return Vec2I(self.x - other.x, self.y - other.y)
 
     def __hash__(self):
         return hash(str(self.x) + '-' + str(self.y))
+
+    def __str__(self):
+        return '({}, {})'.format(self.x, self.y)
+
+    def __repr__(self):
+        return self.__str__()
 
     def norm(self):
         return math.sqrt(self.x ** 2 + self.y ** 2)
@@ -26,37 +35,50 @@ class Vec2I:
 Vec2I.parse_from_list = staticmethod(Vec2I.parse_from_list)
 
 
-def check_collision(board, old_pos, new_pos):
+def get_legal_positions(board, position):
+    legal_positions = []
     entities = board.get_entity_map()
-    # Checks if there is no collision in the path
-    delta_pos = (new_pos - old_pos)
-
-    # Create an array of the cells between the destination position and the old position
-    position = None
-    if delta_pos.y == 0:  # Horizontal
-        sign = -1 if delta_pos.x < 0 else 1
-        position = [Vec2I(old_pos.x + (dx * sign), old_pos.y) for dx in range(1, abs(delta_pos.x))]
-    elif delta_pos.x == 0:  # Vertical
-        sign = -1 if delta_pos.y < 0 else 1
-        position = [Vec2I(old_pos.x, old_pos.y + (sign * dy)) for dy in range(1, abs(delta_pos.y))]
-    elif abs(delta_pos.y == delta_pos.x):  # Oblique
-        sign_x = -1 if delta_pos.x < 0 else 1
-        sign_y = -1 if delta_pos.y < 0 else 1
-        position = [Vec2I(old_pos.x + (dx * sign_x), old_pos.y + (dy * sign_y)) for dx, dy in
-                    zip(range(1, abs(delta_pos.x)), range(1, abs(delta_pos.y)))]
-
-    is_obstacle = False
-    where_obstacle = None
-
-    for pos in position:
-        if entities.get(pos) is not None:
-            is_obstacle = True
-            where_obstacle = pos
+    # Horizontal left moves
+    for x in range(position.x + 1, board.get_cols()):
+        pos = Vec2I(x, position.y)
+        if entities.get(pos) is None:
+            legal_positions.append(pos)
+        else:
+            legal_positions.append(pos)
             break
-
-    if is_obstacle:
-        return False, entities.get(where_obstacle)
-
-    captured_piece = entities.get(new_pos)
-
-    return True, captured_piece
+    # Horizontal right moves
+    for x in range(position.x - 1, -1, -1):
+        pos = Vec2I(x, position.y)
+        if entities.get(pos) is None:
+            legal_positions.append(pos)
+        else:
+            legal_positions.append(pos)
+            break
+    # Vertical down moves
+    for y in range(position.y + 1, board.get_rows()):
+        pos = Vec2I(position.x, y)
+        if entities.get(pos) is None:
+            legal_positions.append(pos)
+        else:
+            legal_positions.append(pos)
+            break
+    # Vertical up moves
+    for y in range(position.y -1, -1, -1):
+        pos = Vec2I(position.x, y)
+        if entities.get(pos) is None:
+            legal_positions.append(pos)
+        else:
+            legal_positions.append(pos)
+            break
+    # Oblique moves
+    for shift_x, shift_y in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
+        pos = position
+        pos += Vec2I(shift_x, shift_y)
+        while board.check_boundaries(pos):
+            if entities.get(pos) is None:
+                legal_positions.append(pos)
+                pos += Vec2I(shift_x, shift_y)
+            else:
+                legal_positions.append(pos)
+                break
+    return legal_positions
