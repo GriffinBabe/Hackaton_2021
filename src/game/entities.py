@@ -84,11 +84,12 @@ class Monkey(GameObject):
         return final_legal_positions
 
     def move(self, board, new_position, capture=None):
+        old_position = Vec2I(self._position.x, self._position.y)
         self.set_position(new_position)
         if capture is not None:
-            self.notify(Event.MOVED_TO_CAPTURE, new_position, capture)
+            self.notify(Event.MOVED_TO_CAPTURE, new_position, capture, old_position)
         else:
-            self.notify(Event.MOVED_TO, new_position)
+            self.notify(Event.MOVED_TO, new_position, old_position)
 
     def __str__(self):
         team = 'b' if self._team == Team.BLACK else 'w'
@@ -113,10 +114,10 @@ class Queen(GameObject):
             board.add_entity(new_monkey)
 
     def move(self, board, new_position, capture=None):
-        old_position = self.get_position()
+        old_position = Vec2I(self._position.x, self._position.y)
         self.set_position(new_position)
         if capture is not None:
-            self.notify(Event.MOVED_TO_CAPTURE, new_position, capture)
+            self.notify(Event.MOVED_TO_CAPTURE, new_position, capture, old_position)
         else:
             self.notify(Event.MOVED_TO_CREATE, new_position, old_position)
 
