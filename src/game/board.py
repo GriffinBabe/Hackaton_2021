@@ -5,7 +5,7 @@ from src.game.geo import Vec2I
 
 class Board(Observable, Observer):
 
-    def __init__(self, cols=12, rows=12):
+    def __init__(self, cols=12, rows=12, console=False):
         Observable.__init__(self)
         self._cols = cols
         self._rows = rows
@@ -14,6 +14,7 @@ class Board(Observable, Observer):
         self._team_turn = Team.WHITE
         self._observers = []
         self._game_over = False
+        self._console = False
 
     def game_over(self):
         return self._game_over
@@ -115,16 +116,16 @@ class Board(Observable, Observer):
 
     def update(self, obj, event, *argv):
         if event == Event.MOVED_TO:
-            self.draw()
+            pass
         elif event == Event.MOVED_TO_CAPTURE:
             captured_piece = argv[1]
             self._entities.remove(captured_piece)
             if isinstance(captured_piece, Queen):
                 print('Team {} wins'.format('black' if captured_piece.get_team() == Team.WHITE else 'white'))
                 self._game_over = True
-            self.draw()
         elif event == Event.MOVED_TO_CREATE:
             old_position = argv[1]
             obj.breed(self, old_position)
+        if self._console:
             self.draw()
         self.notify(event, *argv)

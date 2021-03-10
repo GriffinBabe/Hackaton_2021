@@ -4,15 +4,18 @@ from src.game.entities import Observer, Team, Event, Queen
 from src.game.geo import Vec2I
 from src.ui.GraphicEntity import draw_entity
 from src.ui.GraphicEntity import black_monkey_sprite, white_monkey_sprite, black_queen_sprite, white_queen_sprite
-from pygame.locals import *
 from src.game.command import Command
 from src.test.game_file import read_game_file
+from src.game.game_exception import GameException
+import time
+import threading
 import sys
 import queue
 
 COLOR_BEIGE = (240, 235, 221)
 COLOR_BROWN = (163, 126, 73)
 COLOR_RED = (214, 119, 116)
+COLOR_GREEN = (145, 214, 122)
 
 
 class UI(Observer):
@@ -54,6 +57,7 @@ class UI(Observer):
             self.draw(old_position, new_position)
 
     def draw(self, old_position=None, new_position=None):
+        font = pygame.font.Font(pygame.font.get_default_font(), 25)
         surface = pygame.Surface((self._board.get_cols() * self._cell_size, self._board.get_rows() * self._cell_size))
         for x in range(self._board.get_cols()):
             for y in range(self._board.get_rows()):
@@ -68,8 +72,33 @@ class UI(Observer):
         for entity in self._board.get_entity_map().values():
             draw_entity(entity, surface, self._cell_size)
 
+        for x in range(self._board.get_cols()):
+            text_surface = font.render(str(x + 1), True, COLOR_GREEN)
+            surface.blit(text_surface, (x * self._cell_size + 5, 5))
+        for y in range(self._board.get_rows()):
+            text_surface = font.render(str(y + 1), True, COLOR_GREEN)
+            surface.blit(text_surface, (5, y * self._cell_size + 5))
+
         self._display.blit(surface, (0, 0))
         pygame.display.flip()
+
+
+def command_thread(cmd_queue, board):
+    while True:
+        time.sleep(0.05)
+        if board.game_over():
+            break  # Thread closes once the game is over
+
+        move_from_str = input('Move from: ')
+        move_to_str = input('Move to: ')
+
+        move_from_ls = move_from_str.split(', ')
+        move_to_ls = move_to_str.split(', ')
+
+        move_from = Vec2I(int(move_from_ls[0]) - 1, int(move_from_ls[1]) - 1)
+        move_to = Vec2I(int(move_to_ls[0]) - 1, int(move_to_ls[1]) - 1)
+        command = Command(move_from, move_to)
+        cmd_queue.put(command)
 
 
 if __name__ == '__main__':
@@ -126,15 +155,22 @@ if __name__ == '__main__':
                         move = command_queue.pop(0)
                         game.play_command(move)
     else:
-        while not game.game_over():
-            move_from_str = input('Move from: ')
-            move_to_str = input('Move to: ')
-
-            move_from_ls = move_from_str.split(', ')
-            move_to_ls = move_to_str.split(', ')
-
-            move_from = Vec2I(int(move_from_ls[0]) - 1, int(move_from_ls[1]) - 1)
-            move_to = Vec2I(int(move_to_ls[0]) - 1, int(move_to_ls[1]) - 1)
-            command = Command(move_from, move_to)
-
-            game.play_command(command)
+        command_queue = queue.Queue()
+        move_log = []  # All moves are registered here so they can be saved in a game file
+        thread = threading.Thread(target=command_thread, args=(command_queue, game))
+        thread.start()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit(0)
+            if not command_queue.empty():
+                command = command_queue.get()
+                try:
+                    move_log.append(command)
+                    game.play_command(command)
+                except GameException as e:
+                    print('Wrong command: {}'.format(e))
+                if game.game_over():
+                    print(move_log)
+                    sys.exit(0)
+            time.sleep(0.05)
