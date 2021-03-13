@@ -2,10 +2,10 @@ import pygame
 from src.game.entities import Team, Monkey, Queen
 
 
-black_monkey_sprite = pygame.image.load('../../resources/sprites/black_monkey.png')
-white_monkey_sprite = pygame.image.load('../../resources/sprites/white_monkey.png')
-black_queen_sprite = pygame.image.load('../../resources/sprites/black_queen.png')
-white_queen_sprite = pygame.image.load('../../resources/sprites/white_queen.png')
+black_monkey_sprite = pygame.image.load('resources/sprites/black_monkey.png')
+white_monkey_sprite = pygame.image.load('resources/sprites/white_monkey.png')
+black_queen_sprite = pygame.image.load('resources/sprites/black_queen.png')
+white_queen_sprite = pygame.image.load('resources/sprites/white_queen.png')
 
 
 def draw_entity(entity, surface, cell_size):

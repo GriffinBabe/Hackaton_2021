@@ -1,7 +1,7 @@
 from src.game.entities import GameObject, Team, Event, Queen, Observable, Observer
 from src.game.game_exception import *
 from src.game.geo import Vec2I
-
+from copy import deepcopy
 
 class Board(Observable, Observer):
 
@@ -14,10 +14,14 @@ class Board(Observable, Observer):
         self._team_turn = Team.WHITE
         self._observers = []
         self._game_over = False
+        self._winner = None
         self._console = False
 
     def game_over(self):
         return self._game_over
+
+    def get_winner(self):
+        return self._winner
 
     def add_entity(self, obj):
         # Checks that entity is in the bounds of the board
@@ -62,6 +66,21 @@ class Board(Observable, Observer):
         for obj in self._entities:
             map[obj.get_position()] = obj
         return map
+
+    def get_entities(self):
+        return self._entities
+
+    def get_legal_moves(self, team=None):
+        if team is None:
+            team = self._team_turn
+        legal_moves = []
+        for entity in self._entities:
+            if entity.get_team() == team:
+                positions = entity.get_legal_moves(self)
+                for pos in positions:
+                    if pos != entity.get_pos():
+                        legal_moves.append((entity.get_pos(), pos))
+        return legal_moves
 
     def _get_gameobject_from_pos(self, pos):
         for obj in self._entities:
@@ -121,6 +140,10 @@ class Board(Observable, Observer):
             captured_piece = argv[1]
             self._entities.remove(captured_piece)
             if isinstance(captured_piece, Queen):
+                if captured_piece.get_team() == Team.WHITE:
+                    self._winner = Team.BLACK
+                elif captured_piece.get_team() == Team.BLACK:
+                    self._winner = Team.WHITE
                 print('Team {} wins'.format('black' if captured_piece.get_team() == Team.WHITE else 'white'))
                 self._game_over = True
         elif event == Event.MOVED_TO_CREATE:
@@ -129,3 +152,14 @@ class Board(Observable, Observer):
         if self._console:
             self.draw()
         self.notify(event, *argv)
+
+    def copy_state(self):
+        temp_observers = self._observers
+        self._observers = []
+
+        new_state = deepcopy(self)
+        new_state._observers.clear()
+
+        self._observers = temp_observers
+
+        return new_state
