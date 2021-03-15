@@ -78,8 +78,8 @@ class Board(Observable, Observer):
             if entity.get_team() == team:
                 positions = entity.get_legal_moves(self)
                 for pos in positions:
-                    if pos != entity.get_pos():
-                        legal_moves.append((entity.get_pos(), pos))
+                    if pos != entity.get_position():
+                        legal_moves.append((entity.get_position(), pos))
         return legal_moves
 
     def _get_gameobject_from_pos(self, pos):
@@ -163,3 +163,6 @@ class Board(Observable, Observer):
         self._observers = temp_observers
 
         return new_state
+
+    def get_turn(self):
+        return self._team_turn

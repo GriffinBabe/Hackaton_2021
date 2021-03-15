@@ -36,7 +36,7 @@ class GameInterface(ABC):
         pass
 
     @abstractmethod
-    def list_plays(self):
+    def list_plays(self, player):
         """
         Lists all the possible plays, actionable by the function
         :return: a list of all possible plays
@@ -63,17 +63,16 @@ class GameInterface(ABC):
 
 class MonkeyQueenGameInterface(GameInterface):
 
-    def __init__(self, team, board):
+    def __init__(self, board):
         super().__init__()
-        self._team = team
         self._game = board
 
     def make_play(self, play):
-        self._game.play_command(play)
+        self._game.play_command(Command(play[0], play[1]))
 
-    def list_plays(self):
+    def list_plays(self, player):
         legal_commands = []
-        legal_moves = self._game.get_legal_moves(self._team)
+        legal_moves = self._game.get_legal_moves(player)
         for move_pair in legal_moves:
             legal_commands.append(Command(move_pair[0], move_pair[1]))
         return legal_moves
@@ -81,7 +80,7 @@ class MonkeyQueenGameInterface(GameInterface):
     def branch_play(self, play):
         new_state = self._game.copy_state()
 
-        new_interface = MonkeyQueenGameInterface(team=self._team, board=new_state)
+        new_interface = MonkeyQueenGameInterface(board=new_state)
         new_interface.make_play(play)
 
         return new_interface

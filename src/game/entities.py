@@ -107,6 +107,9 @@ class Queen(GameObject):
     def get_legal_moves(self, board):
         return get_legal_positions(board, self._position)
 
+    def get_stack(self):
+        return self._monkey_stack
+
     def breed(self, board, old_position):
         if self._monkey_stack > 0:
             self._monkey_stack -= 1
