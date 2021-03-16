@@ -9,6 +9,7 @@ COLOR_BROWN = (163, 126, 73)
 COLOR_RED = (214, 119, 116)
 COLOR_GREEN = (145, 214, 122)
 COLOR_BLACK = (0, 0, 0)
+COLOR_YELLOW = (255, 244, 140)
 
 
 class UI(Observer):
@@ -64,6 +65,8 @@ class UI(Observer):
 
         if old_position is not None:
             pygame.draw.rect(surface, COLOR_RED, pygame.rect.Rect(old_position.x * self._cell_size, old_position.y * self._cell_size, self._cell_size, self._cell_size))
+        if new_position is not None:
+            pygame.draw.rect(surface, COLOR_YELLOW, pygame.rect.Rect(new_position.x * self._cell_size, new_position.y * self._cell_size, self._cell_size, self._cell_size))
         for entity in self._board.get_entity_map().values():
             draw_entity(entity, surface, self._cell_size)
 

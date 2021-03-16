@@ -63,11 +63,13 @@ if __name__ == '__main__':
 
         if current_player in AI:
             mcts = MonteCarloTree(current_player, game_interface, None)
-            iterations = 5000
-            for _ in range(iterations):
+            iterations = 500
+            for i in range(iterations):
+                print('Iteration: {}/{}'.format(i + 1, iterations))
                 mcts.tree_search()
             best_coup = next_coup(mcts)
             game_interface.make_play(best_coup)
         else:
             command = get_command(board)
             board.play_command(command)
+    print(board.get_winner())

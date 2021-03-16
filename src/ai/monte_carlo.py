@@ -1,5 +1,6 @@
 import random
 import math
+from src.game.entities import Team
 
 
 def next_coup(root):
@@ -47,7 +48,7 @@ class MonteCarloTree:
             n_coup = random.choice(remaining_coup)
 
             next_C4G = self.game_interface.branch_play(n_coup)
-            next_child = MonteCarloTree(self.num, next_C4G, self)
+            next_child = MonteCarloTree(Team.WHITE if self.num == Team.BLACK else Team.BLACK, next_C4G, self)
             next_child.coup_played = n_coup
             self.children.append(next_child)
 

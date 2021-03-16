@@ -138,14 +138,14 @@ class Board(Observable, Observer):
             pass
         elif event == Event.MOVED_TO_CAPTURE:
             captured_piece = argv[1]
-            self._entities.remove(captured_piece)
             if isinstance(captured_piece, Queen):
                 if captured_piece.get_team() == Team.WHITE:
                     self._winner = Team.BLACK
                 elif captured_piece.get_team() == Team.BLACK:
                     self._winner = Team.WHITE
-                print('Team {} wins'.format('black' if captured_piece.get_team() == Team.WHITE else 'white'))
                 self._game_over = True
+            else:
+                self._entities.remove(captured_piece)
         elif event == Event.MOVED_TO_CREATE:
             old_position = argv[1]
             obj.breed(self, old_position)

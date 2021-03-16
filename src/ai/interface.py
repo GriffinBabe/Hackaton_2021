@@ -68,14 +68,14 @@ class MonkeyQueenGameInterface(GameInterface):
         self._game = board
 
     def make_play(self, play):
-        self._game.play_command(Command(play[0], play[1]))
+        self._game.play_command(play)
 
     def list_plays(self, player):
         legal_commands = []
         legal_moves = self._game.get_legal_moves(player)
         for move_pair in legal_moves:
             legal_commands.append(Command(move_pair[0], move_pair[1]))
-        return legal_moves
+        return legal_commands
 
     def branch_play(self, play):
         new_state = self._game.copy_state()
@@ -92,10 +92,13 @@ class MonkeyQueenGameInterface(GameInterface):
             return False, None
 
     def play_random_moves(self):
-        while not self._game.game_over():
-            possible_moves = self._game.get_legal_moves()
+        game_copy = self._game.copy_state()
+        new_interface = MonkeyQueenGameInterface(game_copy)
+
+        while not game_copy.game_over():
+            possible_moves = new_interface.list_plays(game_copy.get_turn())
             selected_move = random.choice(possible_moves)
-            self.make_play(selected_move)
-        return self.check_win()
+            new_interface.make_play(selected_move)
+        return new_interface.check_win()[1]
 
 
