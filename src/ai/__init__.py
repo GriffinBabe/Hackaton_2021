@@ -72,4 +72,5 @@ if __name__ == '__main__':
         else:
             command = get_command(board)
             board.play_command(command)
+    time.sleep(3)
     print(board.get_winner())

@@ -32,7 +32,7 @@ class MonteCarloTree:
         # TODO : recheck UCB sigmoid formula with other sources
         mean_node_value = self.val / self.visits
         arg = math.log(self.parent.visits / self.visits)
-        self.ucb = mean_node_value + 10 * math.sqrt(arg)
+        self.ucb = mean_node_value + 1.5 * math.sqrt(arg)
 
     def expansion(self):
         """
