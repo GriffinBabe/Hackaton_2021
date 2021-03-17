@@ -60,6 +60,12 @@ class GameObject(Observable):
     def set_team(self, team):
         self._team = team
 
+    def is_queen(self):
+        pass
+
+    def is_black(self):
+        return self._team == Team.BLACK
+
     def __str__(self):
         pass
 
@@ -90,6 +96,9 @@ class Monkey(GameObject):
             self.notify(Event.MOVED_TO_CAPTURE, new_position, capture, old_position)
         else:
             self.notify(Event.MOVED_TO, new_position, old_position)
+
+    def is_queen(self):
+        return False
 
     def __str__(self):
         team = 'b' if self._team == Team.BLACK else 'w'
@@ -123,6 +132,9 @@ class Queen(GameObject):
             self.notify(Event.MOVED_TO_CAPTURE, new_position, capture, old_position)
         else:
             self.notify(Event.MOVED_TO_CREATE, new_position, old_position)
+
+    def is_queen(self):
+        return True
 
     def __str__(self):
         team = 'b' if self._team == Team.BLACK else 'w'

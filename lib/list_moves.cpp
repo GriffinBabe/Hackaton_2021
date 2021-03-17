@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <iostream>
 #include <vector>
 
@@ -11,17 +12,27 @@ typedef unsigned char uchar;
 
 int delta_moves[] = {1, 0, -1, 0, 0, 1, 0, -1, 1, 1, -1, 1, 1, -1, -1, -1};
 
+struct Queen {
+    int x = 0;
+    int y = 0;
+};
+
 enum Piece {
 	IS_QUEEN = 1,
 	IS_BLACK = 2
 };
 
-bool are_same_team(uchar piece_1, uchar piece_2)
+bool are_same_team(char piece_1, char piece_2)
 {
 	return ((piece_1 & Piece::IS_BLACK) == (piece_2 & Piece::IS_BLACK));
 }
 
-extern "C" DLLEXP int test_array(uchar* array)
+float distance(int x_1, int y_1, int x_2, int y_2)
+{
+    return sqrt((x_2 - x_1) * (x_2 - x_1) + (y_2 - y_1) * (y_2 - y_1));
+}
+
+extern "C" DLLEXP int test_array(char* array)
 {
 	array[0] = 1;
 	array[1] = 2;
@@ -30,22 +41,46 @@ extern "C" DLLEXP int test_array(uchar* array)
 	array[4] = 16;
 	array[5] = 32;
 	array[6] = 64;
-	array[7] = 128;
+	array[7] = 127;
 	return 0;
 }
 
-extern "C" DLLEXP int list_moves(uchar* board, int* moves_ptr, bool is_black, int width, int height)
+extern "C" DLLEXP int list_moves(char* board, int* moves_ptr, bool is_black, int width, int height)
 {
-	std::vector<int> moves;
+ 	std::vector<int> moves;
+ 	Queen black_queen;
+ 	Queen white_queen;
+
+ 	// search for queen
+ 	for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            char piece = board[y * width + x];
+            if ((piece != 64) && (piece & Piece::IS_QUEEN)) {
+                if (piece & Piece::IS_BLACK) {
+                    black_queen.x = x;
+                    black_queen.y = y;
+                }
+                else {
+                    white_queen.x = x;
+                    white_queen.y = y;
+                }
+            }
+        }
+ 	}
 
 	for (int y = 0; y < height; y++) {
 		for (int x = 0; x < width; x++) {
 			// get piece at cell
-			uchar piece = board[y * width + x];
-			std::cout << "Piece " << piece << " found in x: " << x << " y: " << y << std::endl;
-
-			if (piece != 0 && (is_black == (piece & IS_BLACK))) {
-				std::cout << "Entering search " << std::endl;
+			char piece = board[y * width + x];
+			if (piece != 64 && (is_black == ((piece & Piece::IS_BLACK) >> 1))) {
+			    // retrieve enemy queen
+			    Queen* enemy_queen = nullptr;
+                if (piece & IS_BLACK) {
+                    enemy_queen = &(white_queen);
+                }
+                else {
+                    enemy_queen = &(black_queen);
+                }
 
 				for (int i = 0; i < 8; i++) {
 					int shift_x = delta_moves[2 * i];
@@ -56,20 +91,33 @@ extern "C" DLLEXP int list_moves(uchar* board, int* moves_ptr, bool is_black, in
 					_x += shift_x;
 					_y += shift_y;
 					while (_x >= 0 && _x < width && _y >= 0 && _y < height) {
-						uchar other_piece = board[_y * width + _x];
-						if (other_piece == 0) {
-							moves.push_back(_x);
-							moves.push_back(_y);
-							_x += shift_x;
-							_y += shift_y;
-						}
-						else {
+                        // monkey cannot move further from enemy queen
+					    if (!(piece & IS_QUEEN)) {
+                            float old_distance = distance(x, y, enemy_queen->x, enemy_queen->y);
+                            float new_distance = distance(_x, _y, enemy_queen->x, enemy_queen->y);
+                            if (new_distance >= old_distance) {
+                                break; //TODO check this out, I'm 99% sure, but might cause trouble if wrong
+                            }
+					    }
+
+						char other_piece = board[_y * width + _x];
+						if (other_piece != 64) {
 							if (!are_same_team(piece, other_piece)) {
+                                moves.push_back(x);
+                                moves.push_back(y);
 								moves.push_back(_x);
 								moves.push_back(_y);
 							}
 							break;
 						}
+						else {
+						    moves.push_back(x);
+						    moves.push_back(y);
+							moves.push_back(_x);
+							moves.push_back(_y);
+							_x += shift_x;
+							_y += shift_y;
+                        }
 					}
 				}
 

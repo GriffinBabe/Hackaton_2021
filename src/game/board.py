@@ -82,6 +82,11 @@ class Board(Observable, Observer):
                         legal_moves.append((entity.get_position(), pos))
         return legal_moves
 
+    # def get_all_legal_moves(self, team=None):
+    #     if team is None:
+    #         team = self._team_turn
+    #     return get_all_legal_pos(self, team == Team.BLACK)
+
     def _get_gameobject_from_pos(self, pos):
         for obj in self._entities:
             obj_pos = obj.get_position()
