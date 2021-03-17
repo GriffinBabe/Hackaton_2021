@@ -1,5 +1,5 @@
 import math
-#from lib.c_functions import *
+
 
 class Vec2I:
 
@@ -81,40 +81,8 @@ Vec2I.parse_from_list = staticmethod(Vec2I.parse_from_list)
 def get_legal_positions(board, position):
     legal_positions = []
     entities = board.get_entity_map()
-    # Horizontal left moves
-    for x in range(position.x + 1, board.get_cols()):
-        pos = Vec2I(x, position.y)
-        if entities.get(pos) is None:
-            legal_positions.append(pos)
-        else:
-            legal_positions.append(pos)
-            break
-    # Horizontal right moves
-    for x in range(position.x - 1, -1, -1):
-        pos = Vec2I(x, position.y)
-        if entities.get(pos) is None:
-            legal_positions.append(pos)
-        else:
-            legal_positions.append(pos)
-            break
-    # Vertical down moves
-    for y in range(position.y + 1, board.get_rows()):
-        pos = Vec2I(position.x, y)
-        if entities.get(pos) is None:
-            legal_positions.append(pos)
-        else:
-            legal_positions.append(pos)
-            break
-    # Vertical up moves
-    for y in range(position.y -1, -1, -1):
-        pos = Vec2I(position.x, y)
-        if entities.get(pos) is None:
-            legal_positions.append(pos)
-        else:
-            legal_positions.append(pos)
-            break
-    # Oblique moves
-    for shift_x, shift_y in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
+    this_entity = entities.get(position)
+    for shift_x, shift_y in [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, 1), (1, -1), (-1, -1)]:
         pos = position
         pos += Vec2I(shift_x, shift_y)
         while board.check_boundaries(pos):
@@ -122,6 +90,7 @@ def get_legal_positions(board, position):
                 legal_positions.append(pos)
                 pos += Vec2I(shift_x, shift_y)
             else:
-                legal_positions.append(pos)
+                if entities.get(pos).get_team() != this_entity.get_team():
+                    legal_positions.append(pos)
                 break
     return legal_positions
