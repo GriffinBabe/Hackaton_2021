@@ -1,0 +1,19 @@
+=> Package à Installer: pygame
+	=> pip install pygame
+	=> pip3 install pygame
+
+=> Ou es-ce que on programme notre jeu? => my_ai.py (présenter les exemples)
+=> Comment es-ce que on lance notre jeu? Attention au CWD
+
+=> Comment es-ce que ce sera évalué. Chaque équipe affrontera les autres équipes automatiqument. Temps de partie max: 1 minute par équipe - max 200 coups après c'est draw. BO3 si on a le temps, sinon BO1.
+	=> Evalué sur le winrate, et sur 
+
+=> Pas de hacking.
+
+=> Si il y a un bug, venir me contacter ASAP
+
+=> Venir chez moi dès qu'on a une question.
+
+=> On passera parmis les équipes vers 21h pour voir comment ça évolue
+
+=> On proposera de tester les AI des équipes avec notre AI

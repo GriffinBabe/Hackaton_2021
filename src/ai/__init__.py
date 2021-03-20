@@ -1,9 +1,9 @@
 from src.game.board import Board
 from src.game.entities import Team, Queen
 from src.game.geo import Vec2I
-from src.ai.interface import MonkeyQueenGameInterface
-from src.ai.monte_carlo import MonteCarloTree, next_coup
+from src.game.game_exception import GameException
 from src.ui.ui import UI
+from src.ai.my_ai_random import make_play
 from src.game.command import Command
 import pygame
 import time
@@ -53,24 +53,37 @@ if __name__ == '__main__':
     graphics = UI(board)
     graphics.open_window()
 
-    game_interface = MonkeyQueenGameInterface(board)
-
     AI = [Team.WHITE, Team.BLACK]
+
+    last_move = None
 
     while board.get_winner() is None:
         current_player = board.get_turn()
+
+        # Check if there are still legal moves
+        legal_moves = board.get_legal_moves(current_player)
+        if len(legal_moves) == 0:
+            print('No legal moves exists for team {}. Team {} wins.'
+                  .format('white' if current_player == Team.WHITE else 'black', 'black' if current_player == Team.BLACK else 'white'))
+
         _ = pygame.event.get()
 
         if current_player in AI:
-            mcts = MonteCarloTree(current_player, game_interface, None)
-            iterations = 500
-            for i in range(iterations):
-                print('Iteration: {}/{}'.format(i + 1, iterations))
-                mcts.tree_search()
-            best_coup = next_coup(mcts)
-            game_interface.make_play(best_coup)
+            board_copy = board.copy_state()
+            play = make_play(board_copy, current_player, last_move)
+            board.play_command(Command(play[0], play[1]))
+            last_move = (play[0], play[1])
         else:
-            command = get_command(board)
-            board.play_command(command)
+            while True:
+                try:
+                    command = get_command(board)
+                    board.play_command(command)
+                    last_move = \
+                        (Vec2I(command.get_from().x, command.get_from().y), command.get_to().x, command.get_to().y)
+                    break
+                except GameException as be:
+                    print('Wrong move: {}'.format(e))
+
     time.sleep(3)
-    print(board.get_winner())
+    if board.get_winner() is not None:
+        print(board.get_winner())
