@@ -1,0 +1,12 @@
+{
+  "pools": [
+    {
+      "pool_number": 1,
+      "teams": ["soldier_of_february", "idle_gang", "hw", "last_minute", "ad_astra"]
+    },
+    {
+      "pool_number": 2,
+      "teams": ["print",  "team_decroly", "ai_crackers",  "quantum_bogosort"]
+    }
+  ]
+}

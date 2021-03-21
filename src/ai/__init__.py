@@ -81,7 +81,7 @@ if __name__ == '__main__':
                     last_move = \
                         (Vec2I(command.get_from().x, command.get_from().y), command.get_to().x, command.get_to().y)
                     break
-                except GameException as be:
+                except GameException as e:
                     print('Wrong move: {}'.format(e))
 
     time.sleep(3)
