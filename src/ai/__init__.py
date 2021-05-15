@@ -5,9 +5,28 @@ from src.game.game_exception import GameException
 from src.ui.ui import UI
 from src.ai.my_ai_random import make_play
 from src.game.command import Command
+from src.ai.interface import MonkeyQueenGameInterface
+from src.ai.monte_carlo import MonteCarloTree
 import pygame
 import time
 import string
+
+ncoup = 1
+
+
+def next_coup(root):
+    global ncoup
+    """
+    :return: next coup with highest value
+    """
+    max_ = root.children[0]
+    for elem in root.children:
+        print(elem.val / elem.visits)
+        if (elem.val / elem.visits) > (max_.val / max_.visits):
+            max_ = elem
+    ncoup *= len(root.children)
+    print("max", (max_.val / max_.visits))
+    return max_.coup_played
 
 
 # noinspection DuplicatedCode
@@ -44,6 +63,8 @@ def get_command(board):
 if __name__ == '__main__':
     board = Board(cols=8, rows=8)
 
+    game_interface = MonkeyQueenGameInterface(board)
+
     white_queen = Queen(Vec2I(3, 0), Team.WHITE, monkey_stack=12)
     black_queen = Queen(Vec2I(4, 7), Team.BLACK, monkey_stack=12)
 
@@ -69,10 +90,22 @@ if __name__ == '__main__':
         _ = pygame.event.get()
 
         if current_player in AI:
-            board_copy = board.copy_state()
-            play = make_play(board_copy, current_player, last_move)
-            board.play_command(Command(play[0], play[1]))
-            last_move = (play[0], play[1])
+            MC = MonteCarloTree(current_player, game_interface, None)
+            iterations = 1000
+            c = 0
+            while iterations > 0:
+                print(iterations)
+                if iterations % 2000 == 0:
+                    print("processing machine coup ... %i/10" % c)
+                    c += 1
+                MC.tree_search()
+                iterations -= 1
+            best_coup = next_coup(MC)
+            game_interface.make_play(best_coup)
+            # board_copy = board.copy_state()
+            # play = make_play(board_copy, current_player, last_move)
+            # board.play_command(Command(play[0], play[1]))
+            # last_move = (play[0], play[1])
         else:
             while True:
                 try:

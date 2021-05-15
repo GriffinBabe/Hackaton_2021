@@ -31,8 +31,8 @@ class MonteCarloTree:
     def update_ucb(self):
         # TODO : recheck UCB sigmoid formula with other sources
         mean_node_value = self.val / self.visits
-        arg = math.log(self.parent.visits / self.visits)
-        self.ucb = mean_node_value + 1.5 * math.sqrt(arg)
+        arg = math.log(self.parent.visits) / self.visits
+        self.ucb = mean_node_value + 1.4 * math.sqrt(arg)
 
     def expansion(self):
         """
@@ -55,13 +55,14 @@ class MonteCarloTree:
             next_child.backup(next_child.rollout())
         elif pwin is not None:
             if self.parent is not None:
-                self.parent.children = [self]  # if the coup is a winning coup, no need to explore the siblings of this coup
-                self.parent.next_win = True # set a flag to indicate that the next coup of the parent is winning
+                self.parent.children = [
+                    self]  # if the coup is a winning coup, no need to explore the siblings of this coup
+                self.parent.next_win = True  # set a flag to indicate that the next coup of the parent is winning
             if pwin == self.num:
                 self.backup(1)
             else:
                 self.backup(-1)
-        elif self.next_win is not None: # if the next coup is a winning one, no need to expanse to siblings
+        elif self.next_win is not None:  # if the next coup is a winning one, no need to expanse to siblings
             if self.children[0].game_interface.check_win() == self.num:
                 self.children[0].backup(1)
             else:
